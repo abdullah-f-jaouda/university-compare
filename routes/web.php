@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CompareController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\UniversityController;
 use App\Models\Program;
@@ -18,3 +19,5 @@ Route::get('/universities/{university}', [UniversityController::class, 'show'])-
 
 Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
 Route::get('/programs/{program}', [ProgramController::class, 'show'])->name('programs.show');
+
+Route::get('/compare', [CompareController::class, 'show'])->name('compare');

@@ -81,13 +81,21 @@
         </div>
     </form>
 
-    <p class="text-muted">عدد النتائج: {{ $programs->count() }}</p>
+    <form action="{{ route('compare') }}" method="GET" id="compareForm">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted">عدد النتائج: {{ $programs->count() }}</span>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">المحدد للمقارنة: <span id="compareCounter">0</span> من 3</span>
+                <button type="submit" id="compareButton" class="btn btn-success btn-sm" disabled>قارن البرامج المحددة</button>
+            </div>
+        </div>
 
     <div class="card shadow-sm">
         <div class="table-responsive">
             <table class="table table-hover table-fit mb-0">
                 <thead class="table-light">
                     <tr>
+                        <th style="width: 40px"></th>
                         <th>البرنامج</th>
                         <th>الجامعة</th>
                         <th>الدرجة</th>
@@ -100,6 +108,7 @@
                 <tbody>
                     @forelse ($programs as $program)
                         <tr>
+                            <td><input type="checkbox" class="form-check-input" name="programs[]" value="{{ $program->id }}" aria-label="تحديد {{ $program->name }} للمقارنة"></td>
                             <td>{{ $program->name }}</td>
                             <td>{{ $program->university->name }}</td>
                             <td>{{ \App\Support\Labels::degree($program->degree_type) }}</td>
@@ -109,10 +118,31 @@
                             <td><a href="{{ route('programs.show', $program) }}" class="btn btn-sm btn-outline-primary">التفاصيل</a></td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="text-center text-muted py-4">لا توجد برامج مطابقة للبحث.</td></tr>
+                        <tr><td colspan="8" class="text-center text-muted py-4">لا توجد برامج مطابقة للبحث.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+    </form>
+
+    <script>
+        (function () {
+            const form = document.getElementById('compareForm');
+            const boxes = form.querySelectorAll('input[name="programs[]"]');
+            const button = document.getElementById('compareButton');
+            const counter = document.getElementById('compareCounter');
+
+            function update() {
+                const checked = form.querySelectorAll('input[name="programs[]"]:checked').length;
+                // عند اختيار 3 تُعطَّل بقية الخانات، وزر المقارنة يحتاج اختيار 2 على الأقل
+                boxes.forEach(function (box) { box.disabled = !box.checked && checked >= 3; });
+                button.disabled = checked < 2;
+                counter.textContent = checked;
+            }
+
+            boxes.forEach(function (box) { box.addEventListener('change', update); });
+            update();
+        })();
+    </script>
 @endsection
